@@ -6,7 +6,7 @@ public class cubeMove : MonoBehaviour {
 	public float rotationPeriod = 0.3f;		// 隣に移動するのにかかる時間
 	public float sideLength = 1f;			// Cubeの辺の長さ
 
-	bool isRotate = false;					// Cubeが回転中かどうかを検出するフラグ
+	public bool isRotate = false;					// Cubeが回転中かどうかを検出するフラグ
 	bool isGoingLeft = true;
 	float directionY = 0;
 	float directionX = 0;					// 回転方向フラグ

@@ -16,15 +16,17 @@ public class worldRotationScript : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		if (Input.GetKeyDown (KeyCode.R)) {
 			rotateIsQueued = true;
 		}
-		if (rotateIsQueued && cube.GetComponent<cubeMove>().ratio == 1) {
+		if (rotateIsQueued && cube.GetComponent<cubeMove>().isRotate == false) {
 			if (worldRotationState == 1) {
 				currentCubePos = cube.transform.localPosition;
 				transform.position = currentCubePos;
+				Time.timeScale = 0.0F;
 				cube.transform.localPosition = new Vector3 (0,0,0);
+				Time.timeScale = 1.0F;
 				transform.eulerAngles = new Vector3 (0, 90, -90);
 
 		//		camera.transform.eulerAngles = new Vector3 (45, 45, 240);
