@@ -8,8 +8,10 @@ public class cubeMove : MonoBehaviour {
 
 	bool isRotate = false;					// Cubeが回転中かどうかを検出するフラグ
 	bool isGoingLeft = true;
+	float directionY = 0;
 	float directionX = 0;					// 回転方向フラグ
 	float directionZ = 0;					// 回転方向フラグ
+
 
 	Vector3 startPos;						// 回転前のCubeの位置
 	float rotationTime = 0;					// 回転中の時間経過
@@ -17,7 +19,7 @@ public class cubeMove : MonoBehaviour {
 	Quaternion fromRotation;				// 回転前のCubeのクォータニオン
 	Quaternion toRotation;	
 
-
+	GameObject playerContainer;
 
 
 	// for color shift
@@ -25,7 +27,7 @@ public class cubeMove : MonoBehaviour {
 	static Renderer rend;
 
 
-
+	public float ratio;
 
 
 	// Use this for initialization
@@ -37,6 +39,8 @@ public class cubeMove : MonoBehaviour {
 		// for color shift
 		rend = GetComponent<Renderer> ();
 		rend.enabled = true;
+
+		playerContainer = transform.parent.gameObject;
 
 	}
 
@@ -67,11 +71,11 @@ public class cubeMove : MonoBehaviour {
 			}
 //			directionX = y;																// 回転方向セット (x,yどちらかは必ず0)
 //			directionZ = x;																// 回転方向セット (x,yどちらかは必ず0)
-			startPos = transform.position;												// 回転前の座標を保持
-			fromRotation = transform.rotation;											// 回転前のクォータニオンを保持
-			transform.Rotate (directionZ * 90, 0, directionX * 90, Space.World);		// 回転方向に90度回転させる
-			toRotation = transform.rotation;											// 回転後のクォータニオンを保持
-			transform.rotation = fromRotation;											// CubeのRotationを回転前に戻す。（transformのシャローコピーとかできないんだろうか…。）
+			startPos = transform.localPosition;												// 回転前の座標を保持
+			fromRotation = transform.localRotation;											// 回転前のクォータニオンを保持
+			transform.Rotate (directionZ * 90, 0, directionX * 90, Space.Self);		// 回転方向に90度回転させる
+			toRotation = transform.localRotation;											// 回転後のクォータニオンを保持
+			transform.localRotation = fromRotation;											// CubeのlocalRotationを回転前に戻す。（transformのシャローコピーとかできないんだろうか…。）
 			rotationTime = 0;															// 回転中の経過時間を0に。
 			isRotate = true;															// 回転中フラグをたてる。
 		}
@@ -82,18 +86,18 @@ public class cubeMove : MonoBehaviour {
 		if (isRotate) {
 
 			rotationTime += Time.fixedDeltaTime;									// 経過時間を増やす
-			float ratio = Mathf.Lerp(0, 1, rotationTime / rotationPeriod);			// 回転の時間に対する今の経過時間の割合
+			ratio = Mathf.Lerp(0, 1, rotationTime / rotationPeriod);			// 回転の時間に対する今の経過時間の割合
 
 			// 移動
-			float yTransformModifier = sideLength*Mathf.Clamp(ratio*4 - 3.0f,0,1);
+			float yTransformModifier = sideLength * Mathf.Clamp(ratio*4 - 3.0f,0,1); // drop math
 			float thetaRad = Mathf.Lerp(0, Mathf.PI / 2f, ratio);					// 回転角をラジアンで。
 			float distanceX = -directionX * radius * (Mathf.Cos (45f * Mathf.Deg2Rad) - Mathf.Cos (45f * Mathf.Deg2Rad + thetaRad));		// X軸の移動距離。 -の符号はキーと移動の向きを合わせるため。
 			float distanceY = radius * (Mathf.Sin(45f * Mathf.Deg2Rad + thetaRad) - Mathf.Sin (45f * Mathf.Deg2Rad));						// Y軸の移動距離
 			float distanceZ = directionZ * radius * (Mathf.Cos (45f * Mathf.Deg2Rad) - Mathf.Cos (45f * Mathf.Deg2Rad + thetaRad));			// Z軸の移動距離
-			transform.position = new Vector3(startPos.x + distanceX, startPos.y + (distanceY - yTransformModifier), startPos.z + distanceZ);						// 現在の位置をセット
+			transform.localPosition = new Vector3(startPos.x + distanceX, startPos.y + (distanceY - yTransformModifier), startPos.z + distanceZ);						// 現在の位置をセット
 
 			// 回転
-			transform.rotation = Quaternion.Lerp(fromRotation, toRotation, ratio);		// Quaternion.Lerpで現在の回転角をセット（なんて便利な関数）
+	//		transform.localRotation = Quaternion.Lerp(fromRotation, toRotation, ratio);		// Quaternion.Lerpで現在の回転角をセット（なんて便利な関数）
 
 			// 移動・回転終了時に各パラメータを初期化。isRotateフラグを下ろす。
 			if (ratio == 1) {
